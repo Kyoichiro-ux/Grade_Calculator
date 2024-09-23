@@ -3,30 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Grade Calculator</title>
+    
+    <!-- Include PyScript and FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+
+    <style>
+        /* General styling for the body */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Container for the form and result display */
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: var(--container-bg-color);
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        /* Styling for the heading */
+        h1 {
+            text-align: center;
+            font-size: 28px;
+        }
+
+        /* Form styles */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+        }
+
+        .theme-toggle i {
+            font-size: 24px;
+            transition: transform 0.3s;
+        }
+
+        /* Dark/light mode colors */
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #000;
+            --container-bg-color: #fff;
+        }
+
+        .dark-theme {
+            --bg-color: #181818;
+            --text-color: #fff;
+            --container-bg-color: #333;
+        }
+
+        /* Small adjustments to ensure uniqueness and modern look */
+        .container {
+            font-size: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        #result {
+            display: none; /* Initially hidden */
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Dark/Light Mode Toggle Button -->
+    <div class="theme-toggle">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </div>
+
     <div class="container">
         <h1>Grade Calculator</h1>
-        <form method="POST">
-            <label for="prelim_grade">Enter your Prelim Grade (0-100):</label>
-            <input type="number" id="prelim_grade" name="prelim_grade" min="0" max="100" required>
-            <button type="submit">Calculate</button>
+        <p>Enter your Prelim grade to calculate the required Midterm and Final grades.</p>
+        
+        <!-- Input form for grade -->
+        <form id="grade-form" onsubmit="return false;">
+            <input type="number" id="prelim" placeholder="Enter Prelim Grade" min="0" max="100">
+            <button type="button" id="calculate-btn">Calculate</button>
         </form>
 
-        {% if result %}
-            <div class="result">
-                <h2>Results:</h2>
-                <p>Prelim Grade: {{ result['prelim_grade'] }}</p>
-                <p>Required Midterm Grade: {{ result['required_midterm']|round(2) }}</p>
-                <p>Required Final Grade: {{ result['required_final']|round(2) }}</p>
-                <p>{{ result['chance_to_pass'] }}</p>
-                <p>Dean's Lister Midterm Grade: {{ result['dean_lister_midterm']|round(2) }}</p>
-                <p>Dean's Lister Final Grade: {{ result['dean_lister_final']|round(2) }}</p>
-            </div>
-        {% endif %}
+        <!-- Placeholder for results -->
+        <div id="result">
+            <div id="errorMsg"></div>
+            <div><span id="prelimGrade"></span></div>
+            <div><span id="midtermGrade"></span></div>
+            <div id="passMessage"></div>
+            <div id="deansMessage"></div>
+        </div>
     </div>
+
+    <script>
+        // Prevent form submission when "Enter" is pressed
+        document.getElementById('grade-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // JavaScript for Dark/Light Mode Toggle
+        const toggleIcon = document.getElementById('theme-icon');
+        const body = document.body;
+
+        // Check if dark mode is enabled in the localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-theme');
+            toggleIcon.classList.remove('fa-moon');
+            toggleIcon.classList.add('fa-sun');
+        }
+
+        // Event listener to toggle dark/light mode
+        toggleIcon.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+
+            // Switch icons
+            if (body.classList.contains('dark-theme')) {
+                toggleIcon.classList.remove('fa-moon');
+                toggleIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                toggleIcon.classList.remove('fa-sun');
+                toggleIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+
+    <!-- PyScript Python Code for Grade Calculation -->
+    <py-script>
+        from pyscript import Element
+
+        def calculate_grade(event):
+            try:
+                prelim = float(Element("prelim").element.value)
+            except ValueError:
+                Element("result").element.style.display = "block"
+                Element("errorMsg").element.innerHTML = f"Please enter a valid prelim grade."
+                Element("prelimGrade").element.innerHTML = f""
+                Element("midtermGrade").element.innerHTML = f""
+                Element("passMessage").element.innerHTML = f""
+                Element("deansMessage").element.innerHTML = f""
+                return
+
+            passing_grade = 75
+            deans_lister_grade = 90
+            prelim_percent = 0.20
+            midterm_percent = 0.30
+            final_percent = 0.50
+
+            # Validate prelim grade
+            if prelim < 0 or prelim > 100:
+                Element("result").element.style.display = "block"
+                Element("errorMsg").element.innerHTML = f"Please enter a valid prelim grade between 0 and 100."
+                Element("prelimGrade").element.innerHTML = f""
+                Element("midtermGrade").element.innerHTML = f""
+                Element("passMessage").element.innerHTML = f""
+                Element("deansMessage").element.innerHTML = f""
+                return
+
+            # Calculate required grades
+            current_total = prelim * prelim_percent
+            required_total = passing_grade - current_total
+
+            if required_total > 0:
+                required_midterm_and_final = required_total / (midterm_percent + final_percent)
+                pass_message = "It is difficult to pass, as the required grades are very high." if required_midterm_and_final > 90 else "You have a chance to pass!"
+            else:
+                required_midterm_and_final = 0
+                pass_message = "Your current grade is high enough to pass!"
+
+            # Calculate for Dean's Lister
+            if prelim >= deans_lister_grade:
+                deans_message = "You qualify for Dean's Lister!"
+            else:
+                required_deans_total = deans_lister_grade - current_total
+                required_deans_midfinal = required_deans_total / (midterm_percent + final_percent)
+                deans_message = f"You cannot be a Dean’s Lister due to insufficient grades. The required grade for you to be a Dean’s Lister is {required_deans_midfinal:.2f} for midterm and {required_deans_midfinal:.2f} for finals."
+
+            # Update result display
+            Element("errorMsg").element.innerHTML = f""
+            Element("prelimGrade").element.innerHTML = f"Prelim Grade: {prelim:.2f}"
+            Element("midtermGrade").element.innerHTML = f"Required Midterm and Final Grades: {required_midterm_and_final:.2f}"
+            Element("passMessage").element.innerHTML = pass_message
+            Element("deansMessage").element.innerHTML = deans_message
+
+            # Show result section
+            Element("result").element.style.display = "block"
+
+        Element("calculate-btn").element.onclick = calculate_grade
+    </py-script>
+
 </body>
 </html>
