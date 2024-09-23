@@ -12,24 +12,24 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #000; /* Black background */
-            color: #39FF14; /* Neon green text */
+            background-color: #000;
+            color: #39FF14;
             margin: 0;
             padding: 0;
-            display: flex; /* Use flexbox for centering */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
-            height: 100vh; /* Full viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         .container {
-            max-width: 400px; /* Set a max width */
-            width: 100%; /* Responsive */
+            max-width: 400px;
+            width: 100%;
             padding: 20px;
-            background-color: #222; /* Darker container background */
+            background-color: #222;
             border-radius: 12px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-            text-align: center; /* Center text inside container */
+            text-align: center;
         }
 
         h1 {
@@ -46,15 +46,15 @@
             width: 80%;
             padding: 10px;
             margin: 15px 0;
-            border: 1px solid #39FF14; /* Neon green border */
+            border: 1px solid #39FF14;
             border-radius: 8px;
-            background-color: #444; /* Darker input background */
-            color: #39FF14; /* Neon green text */
+            background-color: #444;
+            color: #39FF14;
         }
 
         button {
             padding: 10px 20px;
-            background-color: #39FF14; /* Neon green button */
+            background-color: #39FF14;
             color: black;
             border: none;
             border-radius: 8px;
@@ -63,16 +63,16 @@
         }
 
         button:hover {
-            background-color: #32C24A; /* Darker green on hover */
+            background-color: #32C24A;
         }
 
         #result {
-            display: none; /* Initially hidden */
-            margin-top: 20px; /* Space above result */
-            border: 1px solid #39FF14; /* Neon green border for result */
+            display: none;
+            margin-top: 20px;
+            border: 1px solid #39FF14;
             padding: 10px;
             border-radius: 5px;
-            background: rgba(57, 255, 20, 0.1); /* Light green background */
+            background: rgba(57, 255, 20, 0.1);
         }
     </style>
 </head>
@@ -92,7 +92,7 @@
             <div><span id="prelimGrade"></span></div>
             <div><span id="midtermGrade"></span></div>
             <div id="passMessage"></div>
-            <div id="honorMessage"></div>
+            <div id="deansMessage"></div>
         </div>
     </div>
 
@@ -114,11 +114,11 @@
                 Element("prelimGrade").element.innerHTML = ""
                 Element("midtermGrade").element.innerHTML = ""
                 Element("passMessage").element.innerHTML = ""
-                Element("honorMessage").element.innerHTML = ""
+                Element("deansMessage").element.innerHTML = ""
                 return
 
             passing_grade = 75
-            honor_grade = 90
+            deans_lister_grade = 90
             prelim_percent = 0.20
             midterm_percent = 0.30
             final_percent = 0.50
@@ -129,7 +129,7 @@
                 Element("prelimGrade").element.innerHTML = ""
                 Element("midtermGrade").element.innerHTML = ""
                 Element("passMessage").element.innerHTML = ""
-                Element("honorMessage").element.innerHTML = ""
+                Element("deansMessage").element.innerHTML = ""
                 return
 
             current_total = prelim * prelim_percent
@@ -142,18 +142,18 @@
                 required_midterm_and_final = 0
                 pass_message = "Your current grade is sufficient to pass!"
 
-            if prelim >= honor_grade:
-                honor_message = "You are on track for academic honors!"
+            if prelim >= deans_lister_grade:
+                deans_message = "You are on track for Dean's Lister!"
             else:
-                required_honor_total = honor_grade - current_total
-                required_honor_midfinal = required_honor_total / (midterm_percent + final_percent)
-                honor_message = f"To achieve academic honors, you need {required_honor_midfinal:.2f} for both midterm and final grades."
+                required_deans_total = deans_lister_grade - current_total
+                required_deans_midfinal = required_deans_total / (midterm_percent + final_percent)
+                deans_message = f"To achieve Dean's Lister, you need {required_deans_midfinal:.2f} for both midterm and final grades."
 
             Element("errorMsg").element.innerHTML = ""
             Element("prelimGrade").element.innerHTML = f"Prelim Grade: {prelim:.2f}"
             Element("midtermGrade").element.innerHTML = f"Required Midterm and Final Grades: {required_midterm_and_final:.2f}"
             Element("passMessage").element.innerHTML = pass_message
-            Element("honorMessage").element.innerHTML = honor_message
+            Element("deansMessage").element.innerHTML = deans_message
 
             Element("result").element.style.display = "block"
 
