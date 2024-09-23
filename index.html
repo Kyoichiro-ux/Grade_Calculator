@@ -4,41 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Calculator</title>
-    
-    <!-- Include PyScript and FontAwesome for icons -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
 
     <style>
-        /* General styling for the body */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
+            background-color: #000; /* Black background */
+            color: #39FF14; /* Neon green text */
             margin: 0;
             padding: 0;
+            display: flex; /* Use flexbox for centering */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            height: 100vh; /* Full viewport height */
         }
 
-        /* Container for the form and result display */
         .container {
-            max-width: 600px;
-            margin: 50px auto;
+            max-width: 400px; /* Set a max width */
+            width: 100%; /* Responsive */
             padding: 20px;
-            background-color: var(--container-bg-color);
+            background-color: #222; /* Darker container background */
             border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            text-align: center; /* Center text inside container */
         }
 
-        /* Styling for the heading */
         h1 {
-            text-align: center;
             font-size: 28px;
         }
 
-        /* Form styles */
         form {
             display: flex;
             flex-direction: column;
@@ -49,14 +46,16 @@
             width: 80%;
             padding: 10px;
             margin: 15px 0;
-            border: 1px solid #ccc;
+            border: 1px solid #39FF14; /* Neon green border */
             border-radius: 8px;
+            background-color: #444; /* Darker input background */
+            color: #39FF14; /* Neon green text */
         }
 
         button {
             padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
+            background-color: #39FF14; /* Neon green button */
+            color: black;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -64,107 +63,45 @@
         }
 
         button:hover {
-            background-color: #45a049;
-        }
-
-        /* Theme toggle button */
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            cursor: pointer;
-        }
-
-        .theme-toggle i {
-            font-size: 24px;
-            transition: transform 0.3s;
-        }
-
-        /* Dark/light mode colors */
-        :root {
-            --bg-color: #f8f9fa;
-            --text-color: #000;
-            --container-bg-color: #fff;
-        }
-
-        .dark-theme {
-            --bg-color: #181818;
-            --text-color: #fff;
-            --container-bg-color: #333;
-        }
-
-        /* Small adjustments to ensure uniqueness and modern look */
-        .container {
-            font-size: 16px;
-            letter-spacing: 0.5px;
+            background-color: #32C24A; /* Darker green on hover */
         }
 
         #result {
             display: none; /* Initially hidden */
+            margin-top: 20px; /* Space above result */
+            border: 1px solid #39FF14; /* Neon green border for result */
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(57, 255, 20, 0.1); /* Light green background */
         }
     </style>
 </head>
 <body>
 
-    <!-- Dark/Light Mode Toggle Button -->
-    <div class="theme-toggle">
-        <i class="fas fa-moon" id="theme-icon"></i>
-    </div>
-
     <div class="container">
         <h1>Grade Calculator</h1>
         <p>Enter your Prelim grade to calculate the required Midterm and Final grades.</p>
         
-        <!-- Input form for grade -->
         <form id="grade-form" onsubmit="return false;">
             <input type="number" id="prelim" placeholder="Enter Prelim Grade" min="0" max="100">
             <button type="button" id="calculate-btn">Calculate</button>
         </form>
 
-        <!-- Placeholder for results -->
         <div id="result">
             <div id="errorMsg"></div>
             <div><span id="prelimGrade"></span></div>
             <div><span id="midtermGrade"></span></div>
             <div id="passMessage"></div>
-            <div id="deansMessage"></div>
+            <div id="honorMessage"></div>
         </div>
     </div>
 
     <script>
-        // Prevent form submission when "Enter" is pressed
         document.getElementById('grade-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        // JavaScript for Dark/Light Mode Toggle
-        const toggleIcon = document.getElementById('theme-icon');
-        const body = document.body;
-
-        // Check if dark mode is enabled in the localStorage
-        if (localStorage.getItem('theme') === 'dark') {
-            body.classList.add('dark-theme');
-            toggleIcon.classList.remove('fa-moon');
-            toggleIcon.classList.add('fa-sun');
-        }
-
-        // Event listener to toggle dark/light mode
-        toggleIcon.addEventListener('click', () => {
-            body.classList.toggle('dark-theme');
-
-            // Switch icons
-            if (body.classList.contains('dark-theme')) {
-                toggleIcon.classList.remove('fa-moon');
-                toggleIcon.classList.add('fa-sun');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                toggleIcon.classList.remove('fa-sun');
-                toggleIcon.classList.add('fa-moon');
-                localStorage.setItem('theme', 'light');
-            }
+            event.preventDefault();
         });
     </script>
 
-    <!-- PyScript Python Code for Grade Calculation -->
     <py-script>
         from pyscript import Element
 
@@ -173,56 +110,51 @@
                 prelim = float(Element("prelim").element.value)
             except ValueError:
                 Element("result").element.style.display = "block"
-                Element("errorMsg").element.innerHTML = f"Please enter a valid prelim grade."
-                Element("prelimGrade").element.innerHTML = f""
-                Element("midtermGrade").element.innerHTML = f""
-                Element("passMessage").element.innerHTML = f""
-                Element("deansMessage").element.innerHTML = f""
+                Element("errorMsg").element.innerHTML = "Please enter a valid prelim grade."
+                Element("prelimGrade").element.innerHTML = ""
+                Element("midtermGrade").element.innerHTML = ""
+                Element("passMessage").element.innerHTML = ""
+                Element("honorMessage").element.innerHTML = ""
                 return
 
             passing_grade = 75
-            deans_lister_grade = 90
+            honor_grade = 90
             prelim_percent = 0.20
             midterm_percent = 0.30
             final_percent = 0.50
 
-            # Validate prelim grade
             if prelim < 0 or prelim > 100:
                 Element("result").element.style.display = "block"
-                Element("errorMsg").element.innerHTML = f"Please enter a valid prelim grade between 0 and 100."
-                Element("prelimGrade").element.innerHTML = f""
-                Element("midtermGrade").element.innerHTML = f""
-                Element("passMessage").element.innerHTML = f""
-                Element("deansMessage").element.innerHTML = f""
+                Element("errorMsg").element.innerHTML = "Please enter a valid prelim grade between 0 and 100."
+                Element("prelimGrade").element.innerHTML = ""
+                Element("midtermGrade").element.innerHTML = ""
+                Element("passMessage").element.innerHTML = ""
+                Element("honorMessage").element.innerHTML = ""
                 return
 
-            # Calculate required grades
             current_total = prelim * prelim_percent
             required_total = passing_grade - current_total
 
             if required_total > 0:
                 required_midterm_and_final = required_total / (midterm_percent + final_percent)
-                pass_message = "It is difficult to pass, as the required grades are very high." if required_midterm_and_final > 90 else "You have a chance to pass!"
+                pass_message = "You have a chance to pass!" if required_midterm_and_final <= 90 else "It may be challenging to pass."
             else:
                 required_midterm_and_final = 0
-                pass_message = "Your current grade is high enough to pass!"
+                pass_message = "Your current grade is sufficient to pass!"
 
-            # Calculate for Dean's Lister
-            if prelim >= deans_lister_grade:
-                deans_message = "You qualify for Dean's Lister!"
+            if prelim >= honor_grade:
+                honor_message = "You are on track for academic honors!"
             else:
-                required_deans_total = deans_lister_grade - current_total
-                required_deans_midfinal = required_deans_total / (midterm_percent + final_percent)
-                deans_message = f"You cannot be a Dean’s Lister due to insufficient grades. The required grade for you to be a Dean’s Lister is {required_deans_midfinal:.2f} for midterm and {required_deans_midfinal:.2f} for finals."
+                required_honor_total = honor_grade - current_total
+                required_honor_midfinal = required_honor_total / (midterm_percent + final_percent)
+                honor_message = f"To achieve academic honors, you need {required_honor_midfinal:.2f} for both midterm and final grades."
 
-            # Update result display
-            Element("errorMsg").element.innerHTML = f""
+            Element("errorMsg").element.innerHTML = ""
             Element("prelimGrade").element.innerHTML = f"Prelim Grade: {prelim:.2f}"
             Element("midtermGrade").element.innerHTML = f"Required Midterm and Final Grades: {required_midterm_and_final:.2f}"
             Element("passMessage").element.innerHTML = pass_message
-            Element("deansMessage").element.innerHTML = deans_message
+            Element("honorMessage").element.innerHTML = honor_message
 
-            # Show result section
             Element("result").element.style.display = "block"
 
         Element("calculate-btn").element.onclick = calculate_grade
