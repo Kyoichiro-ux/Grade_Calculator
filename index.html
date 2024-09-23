@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <style>
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: #000;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 400px;
+            padding: 20px;
+            background: #1b1b1b;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            color: #39FF14;
+        }
+        h1, h2 {
+            color: #39FF14;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #39FF14;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            background: #2c2c2c;
+            color: #39FF14;
+            outline: none;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #39FF14;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #32cc3f;
+        }
+        .result {
+            margin-top: 20px;
+            border: 1px solid #39FF14;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #39FF14;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Grade Calculator</h1>
+        <p>Enter your Prelim grade to calculate the required Midterm and Final grades.</p>
+        
+        <form id="grade-form" onsubmit="return false;">
+            <input type="number" id="prelim" placeholder="Enter Prelim Grade" min="0" max="100">
+            <button type="button" id="calculate-btn">Calculate</button>
+        </form>
+
+        <div id="result" class="result" style="display: none;">
+            <div id="errorMsg"></div>
+            <div><span id="prelimGrade"></span></div>
+            <div><span id="midtermGrade"></span></div>
+            <div id="passMessage"></div>
+            <div id="deansMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('calculate-btn').onclick = function() {
+            const prelim = parseFloat(document.getElementById('prelim').value);
+            const passingGrade = 75;
+            const deansListerGrade = 90;
+
+            if (isNaN(prelim) || prelim < 0 || prelim > 100) {
+                document.getElementById('errorMsg').innerText = "Please enter a valid prelim grade between 0 and 100.";
+                document.getElementById('result').style.display = "block";
+                return;
+            }
+
+            const requiredMidtermAndFinal = (passingGrade - (prelim * 0.2)) / 0.8;
+
+            let passMessage = requiredMidtermAndFinal <= 90 ? "You have a chance to pass!" : "It may be challenging to pass.";
+            let deansMessage;
+
+            if (prelim >= deansListerGrade) {
+                deansMessage = "You are on track for Dean's Lister!";
+            } else {
+                const requiredForDeans = (deansListerGrade - (prelim * 0.2)) / 0.8;
+                deansMessage = `To achieve Dean's Lister, you need ${requiredForDeans.toFixed(2)} for both midterm and final grades.`;
+            }
+
+            document.getElementById('errorMsg').innerText = "";
+            document.getElementById('prelimGrade').innerText = `Prelim Grade: ${prelim.toFixed(2)}`;
+            document.getElementById('midtermGrade').innerText = `Required Midterm and Final Grades: ${requiredMidtermAndFinal.toFixed(2)}`;
+            document.getElementById('passMessage').innerText = passMessage;
+            document.getElementById('deansMessage').innerText = deansMessage;
+            document.getElementById('result').style.display = "block";
+        };
+    </script>
+
+</body>
+</html>
